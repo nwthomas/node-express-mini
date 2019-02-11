@@ -65,18 +65,42 @@ server.delete("/api/users/:id", (req, res) => {
       if (deleted) {
         res.status(204).end();
       } else {
-        res
-          .status(404)
-          .json({
-            success: false,
-            message: "The user information could not be retrieved."
-          });
+        res.status(404).json({
+          success: false,
+          message: "The user information could not be retrieved."
+        });
       }
     })
     .catch(err => {
       res
         .status(500)
         .json({ success: false, message: "The user could not be removed." });
+    });
+});
+
+server.put("/api/users/:id", (req, res) => {
+  const id = req.params.id;
+  if (!req.body.name || !req.body.bio)
+    return res.status(400).json({
+      success: false,
+      message: "Please provide name and bio for the user."
+    });
+  db.update(id, req.body)
+    .then(updatedUser => {
+      if (updatedUser) {
+        res.status(200).json({ success: true, updatedUser });
+      } else {
+        res.status(404).json({
+          success: false,
+          message: "The user with the specified ID does not exist."
+        });
+      }
+    })
+    .catch(err => {
+      res.status(500).json({
+        success: false,
+        message: "Please provide name and bio for the user."
+      });
     });
 });
 
