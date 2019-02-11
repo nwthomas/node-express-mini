@@ -58,6 +58,28 @@ server.post("/api/users", (req, res) => {
     });
 });
 
+server.delete("/api/users/:id", (req, res) => {
+  const id = req.params.id;
+  db.remove(id)
+    .then(deleted => {
+      if (deleted) {
+        res.status(204).end();
+      } else {
+        res
+          .status(404)
+          .json({
+            success: false,
+            message: "The user information could not be retrieved."
+          });
+      }
+    })
+    .catch(err => {
+      res
+        .status(500)
+        .json({ success: false, message: "The user could not be removed." });
+    });
+});
+
 server.listen(5000, () => {
   console.log("\n***** Listening on Port 5000 *****\n");
 });
