@@ -6,25 +6,37 @@ const server = express();
 server.use(express.json());
 
 server.get("/api/users", (req, res) => {
-  db.hubs
-    .find()
-    .then(hubs => {
-      res.status(200).json({ success: true, hubs });
+  db.find()
+    .then(users => {
+      res.status(200).json({ success: true, users });
     })
     .catch(err => {
-      res.status(err.code).json({ success: false, message: err.message });
+      res.status(500).json({
+        success: false,
+        message: "The users information could not be retrieved."
+      });
     });
 });
 
 server.post("/api/users", (req, res) => {
-  const hub = req.body;
-  db.hubs
-    .insert(hub)
-    .then(hub => {
-      res.status(201).json({ success: true, hub });
+  const { name, bio } = req.body;
+  const newUser = { name, bio };
+  if (!name || !bio) {
+    return res
+      .status(400)
+      .json({ message: "Please provide name and bio for the user." });
+  }
+  db.insert(newUser)
+    .then(user => {
+      res.status(201).json({ ...newUser, id: user.id, success: true });
     })
-    .catch(({ code, message }) => {
-      res.status(code).json({ success: false, message });
+    .catch(err => {
+      res
+        .status(500)
+        .json({
+          success: false,
+          message: "There was an error while saving the user to the database."
+        });
     });
 });
 
